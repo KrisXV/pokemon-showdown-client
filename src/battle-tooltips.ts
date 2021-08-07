@@ -1023,8 +1023,8 @@ class BattleTooltips {
 
 		// check for light ball, thick club, metal/quick powder
 		// the only stat modifying items in gen 2 were light ball, thick club, metal powder
-		if (item === 'lightball' && species === 'Pikachu') {
-			if (this.battle.gen >= 4) stats.atk *= 2;
+		if (item === 'lightball' && species === 'Pikachu' && this.battle.gen !== 4) {
+			if (this.battle.gen >= 5) stats.atk *= 2;
 			stats.spa *= 2;
 		}
 
@@ -1931,6 +1931,13 @@ class BattleTooltips {
 		// Type-enhancing items
 		if (BattleTooltips.itemTypes[item.name] === moveType) {
 			value.itemModify(this.battle.gen < 4 ? 1.1 : 1.2);
+			return value;
+		}
+
+		// Light ball is a base power modifier in gen 4 only
+		if (item.name === 'Light Ball' && this.battle.gen !== 4) return value;
+		if (item.name === 'Light Ball' && Dex.species.get(value.serverPokemon.speciesForme).baseSpecies === 'Pikachu') {
+			value.itemModify(2);
 			return value;
 		}
 
