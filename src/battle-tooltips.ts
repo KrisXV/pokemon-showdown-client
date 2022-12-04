@@ -1208,10 +1208,18 @@ class BattleTooltips {
 		if (ability === 'furcoat') {
 			stats.def *= 2;
 		}
-		stats.spa = Math.floor(stats.spa * Math.pow(0.75, this.battle.abilityActive('Vessel of Ruin', clientPokemon)));
-		stats.def = Math.floor(stats.def * Math.pow(0.75, this.battle.abilityActive('Sword of Ruin', clientPokemon)));
-		stats.atk = Math.floor(stats.atk * Math.pow(0.75, this.battle.abilityActive('Tablets of Ruin', clientPokemon)));
-		stats.spd = Math.floor(stats.spd * Math.pow(0.75, this.battle.abilityActive('Beads of Ruin', clientPokemon)));
+		if (this.battle.abilityActive('Vessel of Ruin', clientPokemon)) {
+			stats.spa = Math.floor(stats.spa * 0.75);
+		}
+		if (this.battle.abilityActive('Sword of Ruin', clientPokemon)) {
+			stats.def = Math.floor(stats.def * 0.75);
+		}
+		if (this.battle.abilityActive('Tablets of Ruin', clientPokemon)) {
+			stats.atk = Math.floor(stats.atk * 0.75);
+		}
+		if (this.battle.abilityActive('Beads of Ruin', clientPokemon)) {
+			stats.spd = Math.floor(stats.spd * 0.75);
+		}
 		const sideConditions = this.battle.mySide.sideConditions;
 		if (sideConditions['tailwind']) {
 			speedModifiers.push(2);
@@ -1458,7 +1466,8 @@ class BattleTooltips {
 				}
 			}
 
-			if (category !== 'Status' && !move.isZ && !move.id.startsWith('hiddenpower')) {
+			if (category !== 'Status' && !move.isZ && !move.id.startsWith('hiddenpower') &&
+				!(move.id === 'terablast' && pokemon.teraType)) {
 				if (moveType === 'Normal') {
 					if (value.abilityModify(0, 'Aerilate')) moveType = 'Flying';
 					if (value.abilityModify(0, 'Galvanize')) moveType = 'Electric';
@@ -1784,13 +1793,6 @@ class BattleTooltips {
 				value.setRange(isGKLK ? 20 : 40, 120);
 			}
 		}
-		// Base power based on times hit
-		if (move.id === 'ragefist') {
-			value.set(Math.min(350, 50 + 50 * pokemon.timesAttacked),
-				pokemon.timesAttacked > 0
-					? `Hit ${pokemon.timesAttacked} time${pokemon.timesAttacked > 1 ? 's' : ''}`
-					: undefined);
-		}
 		if (!value.value) return value;
 
 		// Other ability boosts
@@ -1841,11 +1843,11 @@ class BattleTooltips {
 			}
 		}
 		const noTypeOverride = [
-			'judgment', 'multiattack', 'naturalgift', 'revelationdance', 'struggle', 'technoblast', 'terablast', 'terrainpulse', 'weatherball',
+			'judgment', 'multiattack', 'naturalgift', 'revelationdance', 'struggle', 'technoblast', 'terrainpulse', 'weatherball',
 		];
 		if (
 			move.category !== 'Status' && !noTypeOverride.includes(move.id) && !move.isZ && !move.isMax &&
-			!move.id.startsWith('hiddenpower')
+			!move.id.startsWith('hiddenpower') && !(move.id === 'terablast' && move.teraType)
 		) {
 			if (move.type === 'Normal') {
 				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Aerilate");
