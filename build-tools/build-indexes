@@ -9,7 +9,7 @@ const rootDir = path.resolve(__dirname, '..');
 process.chdir(rootDir);
 
 if (!fs.existsSync('data/pokemon-showdown')) {
-	child_process.execSync('git clone https://github.com/smogon/pokemon-showdown.git', {
+	child_process.execSync('git clone -b ssb https://github.com/KrisXV/pokemon-showdown.git', {
 		cwd: 'data',
 	});
 }
@@ -321,7 +321,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	const NFE = GENS.map(num => num + 0.3);
 	const STADIUM = [2.04, 1.04];
 	const NATDEX = [9.1, 8.1];
-	const OTHER = [9.2, 8.6, 8.4, 8.2, 8.1, -8.4, -8.6, 7.1];
+	const OTHER = [9.4, 9.2, 8.6, 8.4, 8.2, 8.1, -8.4, -8.6, 7.1];
 
 	// process.stdout.write("\n  ");
 	for (const genIdent of [...GENS, ...DOUBLES, ...VGC, ...NFE, ...STADIUM, ...OTHER, ...NATDEX]) {
@@ -334,6 +334,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const isStadium = ('' + genIdent).endsWith('.04');
 		const isDoubles = (genIdent < 0);
 		const isVGC = ('' + genIdent).endsWith('.5');
+		const isSSB = genIdent === 9.4;
 		const genNum = Math.floor(isDoubles ? -genIdent : genIdent);
 		const gen = (() => {
 			let genStr = 'gen' + genNum;
@@ -341,6 +342,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (isLetsGo) genStr += 'letsgo';
 			if (isBDSP) genStr += 'bdsp';
 			if (isStadium) genStr += 'stadium' + (genNum > 1 ? genNum : '');
+			if (isSSB) genStr += 'ssb';
 			return genStr;
 		})();
 		// process.stdout.write("" + gen + (isDoubles ? " doubles" : "") + "... ");
@@ -505,6 +507,11 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable[gen + 'doubles'].tiers = tiers;
 			BattleTeambuilderTable[gen + 'doubles'].overrideTier = overrideTier;
 			BattleTeambuilderTable[gen + 'doubles'].formatSlices = formatSlices;
+		} else if (isSSB) {
+			BattleTeambuilderTable['gen9ssb'] = {};
+			BattleTeambuilderTable['gen9ssb'].tiers = tiers;
+			BattleTeambuilderTable['gen9ssb'].overrideTier = overrideTier;
+			BattleTeambuilderTable['gen9ssb'].formatSlices = formatSlices;
 		} else if (gen === 'gen9') {
 			BattleTeambuilderTable.tiers = tiers;
 			BattleTeambuilderTable.items = items;
@@ -1015,7 +1022,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	// Mods
 	//
 
-	for (const mod of ['gen7letsgo', 'gen8bdsp']) {
+	for (const mod of ['gen7letsgo', 'gen8bdsp', 'gen9ssb']) {
 		const modDex = Dex.mod(mod);
 		const modData = modDex.data;
 		const parentDex = Dex.forGen(modDex.gen);
